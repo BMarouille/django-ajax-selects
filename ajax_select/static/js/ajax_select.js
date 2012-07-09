@@ -25,6 +25,7 @@ $.fn.autocompleteselect = function(options) {
 	
 		var $text = $("#"+id+"_text");
 		var $deck = $("#"+id+"_on_deck");
+		var $addbutton = $("#add_"+id);
 
 		function receiveResult(event, ui) {
 			if ($this.val()) {
@@ -32,20 +33,22 @@ $.fn.autocompleteselect = function(options) {
 			}
 			$this.val(ui.item.pk);
 			$text.val('');
-			addKiller(ui.item.repr);
+			addKiller(ui.item.repr, ui.item.pk);
 			$deck.trigger("added");
 
 			return false;
 		}
 
 		function addKiller(repr,pk) {
+			$addbutton.remove()
 			killer_id = "kill_" + pk + id;
-			killButton = '<span class="ui-icon ui-icon-trash" id="'+killer_id+'">X</span> ';
+			killButton = '<a id="'+killer_id+'">Delete</a> ';
+			$text.replaceWith($deck);
 			if (repr) {
 				$deck.empty();
-				$deck.append("<div>" + killButton + repr + "</div>");
+				$deck.append("<span>" + repr + killButton + "</span>");
 			} else {
-				$("#"+id+"_on_deck > div").prepend(killButton);
+				$("#"+id+"_on_deck > div").append(killButton);
 			}
 			$("#" + killer_id).click(function() {
 				kill();
@@ -55,9 +58,10 @@ $.fn.autocompleteselect = function(options) {
 
 		function kill() {
 			$this.val('');
-			$deck.children().fadeOut(1.0).remove();
+			$deck.replaceWith($text);
+			$text.autocomplete(options);
+			$text.after($addbutton);
 		}
-		
 		options.select = receiveResult;
 		$text.autocomplete(options);
 		$text.autocompletehtml();
@@ -98,8 +102,8 @@ $.fn.autocompleteselectmultiple = function(options) {
 
 		function addKiller(repr, pk) {
 			killer_id = "kill_" + pk + id;
-			killButton = '<span class="ui-icon ui-icon-trash" id="'+killer_id+'">X</span> ';
-			$deck.append('<div id="'+id+'_on_deck_'+pk+'">' + killButton + repr + ' </div>');
+			killButton = '<a id="'+killer_id+'">Delete</a> ';
+			$deck.append('<div id="'+id+'_on_deck_'+pk+'">' + repr+ killButton  + ' </div>');
 
 			$("#"+killer_id).click(function() {
 				kill(pk);

@@ -45,6 +45,9 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
             except IndexError:
                 raise Exception("%s cannot find object:%s" % (lookup, value))
             display = lookup.format_item_display(obj)
+            #necessary for the objects with a unicode pimary key
+            if type(obj.pk) is unicode:
+                obj.pk = "'" + obj.pk + "'"
             current_repr = mark_safe( """new Array("%s",%s)""" % (escapejs(display),obj.pk) )
         else:
             current_repr = 'null'
@@ -67,16 +70,14 @@ class AutoCompleteSelectWidget(forms.widgets.TextInput):
                 'add_link' : self.add_link,
                 }
         context.update(bootstrap())
-        
         return mark_safe(render_to_string(('autocompleteselect_%s.html' % self.channel, 'autocompleteselect.html'),context))
 
     def value_from_datadict(self, data, files, name):
-
         got = data.get(name, None)
-        if got:
+        try:
             return long(got)
-        else:
-            return None
+        except (ValueError, TypeError):
+            return got
 
     def id_for_label(self, id_):
         return '%s_text' % id_

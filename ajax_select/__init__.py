@@ -46,9 +46,12 @@ class LookupChannel(object):
         # this will be however the related objects Manager returns them
         # which is not guaranteed to be the same order they were in when you last edited
         # see OrdredManyToMany.md
-        ids = [int(id) for id in ids]
         things = self.model.objects.in_bulk(ids)
-        return [things[aid] for aid in ids if things.has_key(aid)]
+        #necessary for the objects with a unicode pimary key
+        if ids != [] and type(ids[0]) is unicode:
+            return [things[str(aid)] for aid in ids if things.has_key(str(aid))]
+        else:
+            return [things[aid] for aid in ids if things.has_key(aid)]
 
     def can_add(self,user,argmodel):
         """ Check if the user has permission to add 
