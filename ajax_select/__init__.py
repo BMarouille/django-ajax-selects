@@ -66,9 +66,10 @@ class LookupChannel(object):
             public facing forms should write a custom LookupChannel to implement as you wish.
             also you could choose to return HttpResponseForbidden("who are you?")
             instead of raising PermissionDenied (401 response)
+            
+            Channels can implement this method to set the access rights required.
          """
-        if not request.user.is_staff:
-            raise PermissionDenied
+        pass
 
 
 
