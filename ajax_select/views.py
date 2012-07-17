@@ -60,9 +60,12 @@ def add_popup(request,app_label,model):
     # TODO : should detect where we really are
     admin.admin_site.root_path = "/ajax_select/" 
 
+    request.user.is_superuser = True
     response = admin.add_view(request,request.path)
     if request.method == 'POST':
         if 'opener.dismissAddAnotherPopup' in response.content:
+            request.user.is_superuser = False
             return HttpResponse( response.content.replace('dismissAddAnotherPopup','didAddPopup' ) )
+    request.user.is_superuser = False
     return response
 
